@@ -42,6 +42,36 @@ func (s *Store) Init() error {
 }
 
 func (s *Store) GetItems() ([]Item, error) {
+	queryGetItems := `
+		SELECT
+			id,
+			title,
+			body,
+			priority
+		FROM
+			items
+		ORDER priortiy asc;
+	`;
+
+	rows, err := s.conn.Query(queryGetItems)
+
+	if err != nil {
+		return nil, err
+	}
+
+	items := []Item{}
+	defer rows.Close()
+	for rows.Next() {
+		item := Item{}
+		rows.Scan(
+			&item.ID,
+			&item.Title,
+			&item.Body,
+			&item.Priority,
+		)
+		items = append(items, item)
+	}
+
 	return nil, nil
 }
 

@@ -28,9 +28,9 @@ func (s *Store) Init() error {
 
 	queryTableCreate := `
 		CREATE TABLE IF NOT EXISTS items (
-			id integer not null primary key
-			title text not null
-			body text
+			id integer not null primary key,
+			title text not null,
+			body text,
 			priority integer not null
 		);
 	`
@@ -51,7 +51,7 @@ func (s *Store) GetItems() ([]Item, error) {
 			priority
 		FROM
 			items
-		ORDER priortiy asc;
+		ORDER BY priority asc;
 	`;
 
 	rows, err := s.conn.Query(queryGetItems)

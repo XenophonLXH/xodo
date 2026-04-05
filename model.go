@@ -105,7 +105,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cint, err := strconv.ParseInt(priority, 10, 64)
 
 				if err != nil {
-					fmt.Println("Unable to store priority")
+					fmt.Println("Unable to store priority: ", err)
 					os.Exit(1)
 				}
 

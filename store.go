@@ -10,7 +10,7 @@ type Item struct {
 	ID int32
 	Title string
 	Body string
-	Priority int32
+	Priority int64
 }
 
 type Store struct {
@@ -73,7 +73,7 @@ func (s *Store) GetItems() ([]Item, error) {
 		items = append(items, item)
 	}
 
-	return nil, nil
+	return items, nil
 }
 
 func (s *Store) CreateItem(item Item) error {

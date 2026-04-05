@@ -49,6 +49,8 @@ func (m model) View() string {
 
 			s += listRow.Render(prefix) + "[" + n.Title + "]:" + shortbody + newline
 		}
+
+		s += controlTool.Render("a - Add Item ; q - Exit")
 	}
 
 	return s

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -96,12 +97,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.viewType = priorityView
 					m.textinput.SetValue("")
 					m.textinput.Focus()
+					// Empty for Priority
+					m.textinput.SetValue("")
 				}
 			}
 		case priorityView:
 			switch key {
 			case "enter", "ctrl + s":
-				priority := m.textarea.Value()
+				priority := m.textinput.Value()
 				cint, err := strconv.ParseInt(priority, 10, 64)
 
 				if err != nil {
@@ -110,6 +113,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				m.currentItem.Priority = cint
+
+				var errr error
+				if err = m.store.CreateItem(m.currentItem); errr != nil {
+					log.Fatalf("Could not create item %v", errr)
+				}
+
+				m.items, err = m.store.GetItems()
+				if err != nil {
+					log.Fatalf("Could not get items: %v", err)
+				}
+
+				m.viewType = listView
 			}
 		}
 	}

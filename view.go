@@ -12,8 +12,8 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("#F5F2F2")).
 			Background(lipgloss.Color("#2B2A2A")).
-			PaddingLeft(16).
-			PaddingRight(16)
+			PaddingLeft(25).
+			PaddingRight(25)
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
@@ -73,7 +73,7 @@ func (m model) View() string {
 			s += listPrio.Render("(" + strconv.FormatInt(priority, 10) + ") ") + listPointer.Render(prefix) + listTitle.Render("[" + n.Title + "]: ") + listDesc.Render(shortbody)  + newline
 		}
 
-		s += controlTool.Render("a - Add Item ; q - Exit")
+		s += controlTool.Render("a - Add ; q - quit ; i - edit ; d - done")
 	}
 
 	return s

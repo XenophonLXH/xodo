@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -11,18 +12,26 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("#F5F2F2")).
 			Background(lipgloss.Color("#2B2A2A")).
-			PaddingLeft(8).
-			PaddingRight(8)
+			PaddingLeft(16).
+			PaddingRight(16)
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
-			PaddingLeft(4).
-			PaddingRight(4)
+			PaddingLeft(12).
+			PaddingRight(12)
 	
-	listRow     = lipgloss.NewStyle().
+	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
-			PaddingLeft(4).
-			PaddingRight(4)
+			PaddingLeft(1).
+			PaddingRight(1)
+	listTitle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FEB05D"))
+	listDesc = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#F5F2F2"))
+	listPrio = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#F5F2F2"))
+	
+	
 )
 
 func (m model) View() string {
@@ -59,7 +68,9 @@ func (m model) View() string {
 				shortbody = shortbody[:25]
 			}
 
-			s += listRow.Render(prefix) + "[" + n.Title + "]: " + shortbody + newline
+			priority := n.Priority
+
+			s += listPrio.Render("(" + strconv.FormatInt(priority, 10) + ") ") + listPointer.Render(prefix) + listTitle.Render("[" + n.Title + "]: ") + listDesc.Render(shortbody)  + newline
 		}
 
 		s += controlTool.Render("a - Add Item ; q - Exit")

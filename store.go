@@ -14,6 +14,7 @@ type Item struct {
 	Body string
 	Priority int64
 	Done bool
+	DateComplete int32
 }
 
 type Store struct {
@@ -35,7 +36,8 @@ func (s *Store) Init() error {
 			title text not null,
 			body text,
 			priority integer not null,
-			done bool
+			done bool,
+			date_complete integer
 		);
 	`
 
@@ -53,7 +55,8 @@ func (s *Store) GetItems() ([]Item, error) {
 			title,
 			body,
 			priority,
-			done
+			done,
+			date_complete
 		FROM
 			items
 		WHERE done = false
@@ -76,6 +79,7 @@ func (s *Store) GetItems() ([]Item, error) {
 			&item.Body,
 			&item.Priority,
 			&item.Done,
+			&item.DateComplete,
 		)
 		items = append(items, item)
 	}
@@ -89,13 +93,13 @@ func (s *Store) CreateItem(item Item) error {
 	}
 
 	queryCreateItem := `
-		INSERT INTO items (id, title, body, priority, done)
-		VALUES (?, ?, ?, ?, ?)
+		INSERT INTO items (id, title, body, priority, done, date_complete)
+		VALUES (?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE
-		SET title=excluded.title, body=excluded.body, priority=excluded.priority, done=excluded.done;
+		SET title=excluded.title, body=excluded.body, priority=excluded.priority, done=excluded.done, date_complete=excluded.date_complete;
 	`
 
-	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority, false); err != nil {
+	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority, false, 0); err != nil {
 		return err
 	}
 
@@ -107,13 +111,18 @@ func (s *Store) MarkDone(item Item) error {
 		log.Fatal("Could not update Item, item does not exit")
 	}
 
+	item.DateComplete = int32(time.Now().UTC().Unix())
+
 	queryMarkDone := `
-		UPDATE items
-		SET done = true
-		WHERE
-		id = ?
+		UPDATE
+			items
+		SET 
+			done = true, 
+			date_complete = ?
+		WHERE 
+			id = ?;
 	`
-	if _, err := s.conn.Exec(queryMarkDone, item.ID); err != nil {
+	if _, err := s.conn.Exec(queryMarkDone, item.DateComplete, item.ID); err != nil {
 		return err
 	}
 

@@ -8,8 +8,10 @@ Simple golang based TODO list.
 - [Bubbles](https://github.com/charmbracelet/bubbles)
 
 ## Keybindings
+### List View
 
 | Key | Description                         |
 |-----|-------------------------------------|
 |   a  | Add a new item                      |
+|   i   | Edit an item                      |
 |   q  | Quit                                |

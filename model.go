@@ -89,6 +89,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					m.listIndex = len(m.items) - 1
 				}
+
 			case "d":
 				m.currentItem = m.items[m.listIndex]
 
@@ -111,7 +112,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textarea.Focus()
 				m.textarea.CursorEnd()
 			}
-
 		case titleView:
 			switch key {
 			case "enter", "ctrl+s":
@@ -129,7 +129,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "ctrl+w":
 				return m, tea.Quit
-
 			}
 		case bodyView:
 			switch key {
@@ -150,7 +149,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "esc":
 				m.viewType = listView
 			}
-
 		case priorityView:
 			switch key {
 			case "enter", "ctrl+s":

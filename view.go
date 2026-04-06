@@ -73,7 +73,7 @@ func (m model) View() string {
 			s += listPrio.Render("(" + strconv.FormatInt(priority, 10) + ") ") + listPointer.Render(prefix) + listTitle.Render("[" + n.Title + "]: ") + listDesc.Render(shortbody)  + newline
 		}
 
-		s += controlTool.Render("a - Add ; q - quit ; i - edit ; d - done")
+		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
 	return s

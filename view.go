@@ -6,15 +6,27 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-
 var (
-	applicationName = lipgloss.NewStyle()
-	controlTool = lipgloss.NewStyle()
-	listRow = lipgloss.NewStyle()
+	applicationName = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("#F5F2F2")).
+			Background(lipgloss.Color("#2B2A2A")).
+			PaddingLeft(8).
+			PaddingRight(8)
+	controlTool = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#5A7ACD")).
+			Background(lipgloss.Color("#2B2A2A")).
+			PaddingLeft(4).
+			PaddingRight(4)
+	
+	listRow     = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#5A7ACD")).
+			PaddingLeft(4).
+			PaddingRight(4)
 )
 
 func (m model) View() string {
-	var newline = "\n\n"
+	newline := "\n\n"
 	s := applicationName.Render("Your TODO List!") + newline
 
 	if m.viewType == titleView {
@@ -32,7 +44,7 @@ func (m model) View() string {
 	if m.viewType == priorityView {
 		s += "Priority: " + newline
 		s += m.textinput.View() + newline
-		s += controlTool.Render("enter - save ; esc - back");
+		s += controlTool.Render("enter - save ; esc - back")
 	}
 
 	if m.viewType == listView {

@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	fmt.Println("I am a todo list!")
 	// Get connected to the database
 	s :=  new(Store)
 

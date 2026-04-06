@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"time"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -85,7 +86,7 @@ func (s *Store) CreateItem(item Item) error {
 		INSERT INTO items (id, title, body, priority)
 		VALUES (?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE
-		SET title=exluded.title, body=exluded.body, priority=exluded.priority;
+		SET title=excluded.title, body=excluded.body, priority=excluded.priority;
 	`
 
 	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority); err != nil {

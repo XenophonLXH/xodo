@@ -151,7 +151,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				var errr error
 				if errr = m.store.CreateItem(m.currentItem); errr != nil {
-					log.Fatalf("Could not create item %v", errr)
+					log.Fatalf("Could not create item: %v", errr)
 				}
 
 				m.items, err = m.store.GetItems()

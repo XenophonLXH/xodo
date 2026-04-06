@@ -19,7 +19,7 @@ var (
 			Background(lipgloss.Color("#2B2A2A")).
 			PaddingLeft(12).
 			PaddingRight(12)
-	
+
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			PaddingLeft(1).
@@ -30,8 +30,6 @@ var (
 			Foreground(lipgloss.Color("#F5F2F2"))
 	listPrio = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F5F2F2"))
-	
-	
 )
 
 func (m model) View() string {
@@ -39,9 +37,9 @@ func (m model) View() string {
 	s := applicationName.Render("Your TODO List!") + newline
 
 	if m.viewType == titleView {
-		s += "Title: " + newline
+		s += listTitle.Render("Title: ") + newline
 		s += m.textinput.View() + newline
-		s += controlTool.Render("enter - save ; esc - discard")
+		s += controlTool.Render("enter - save ; esc - discard ; ctrl + w - quit")
 	}
 
 	if m.viewType == bodyView {
@@ -70,7 +68,7 @@ func (m model) View() string {
 
 			priority := n.Priority
 
-			s += listPrio.Render("(" + strconv.FormatInt(priority, 10) + ") ") + listPointer.Render(prefix) + listTitle.Render("[" + n.Title + "]: ") + listDesc.Render(shortbody)  + newline
+			s += listPrio.Render("("+strconv.FormatInt(priority, 10)+") ") + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
 		}
 
 		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")

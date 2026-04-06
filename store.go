@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -12,6 +13,7 @@ type Item struct {
 	Title string
 	Body string
 	Priority int64
+	Done bool
 }
 
 type Store struct {
@@ -32,7 +34,8 @@ func (s *Store) Init() error {
 			id integer not null primary key,
 			title text not null,
 			body text,
-			priority integer not null
+			priority integer not null,
+			done bool
 		);
 	`
 
@@ -49,9 +52,11 @@ func (s *Store) GetItems() ([]Item, error) {
 			id,
 			title,
 			body,
-			priority
+			priority,
+			done
 		FROM
 			items
+		WHERE done = false
 		ORDER BY priority asc;
 	`;
 
@@ -70,6 +75,7 @@ func (s *Store) GetItems() ([]Item, error) {
 			&item.Title,
 			&item.Body,
 			&item.Priority,
+			&item.Done,
 		)
 		items = append(items, item)
 	}
@@ -83,13 +89,31 @@ func (s *Store) CreateItem(item Item) error {
 	}
 
 	queryCreateItem := `
-		INSERT INTO items (id, title, body, priority)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO items (id, title, body, priority, done)
+		VALUES (?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE
-		SET title=excluded.title, body=excluded.body, priority=excluded.priority;
+		SET title=excluded.title, body=excluded.body, priority=excluded.priority, done=excluded.done;
 	`
 
-	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority); err != nil {
+	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) MarkDone(item Item) error {
+	if item.ID == 0 {
+		log.Fatal("Could not update Item, item does not exit")
+	}
+
+	queryMarkDone := `
+		UPDATE items
+		SET done = true
+		WHERE
+		id = ?
+	`
+	if _, err := s.conn.Exec(queryMarkDone, item.ID); err != nil {
 		return err
 	}
 

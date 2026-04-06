@@ -49,11 +49,10 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	// Used for batching
 	var (
 		cmds []tea.Cmd
-		cmd tea.Cmd
+		cmd  tea.Cmd
 	)
 
 	m.textarea, cmd = m.textarea.Update(msg)
@@ -70,27 +69,45 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch key {
 			case "q":
 				return m, tea.Quit
+
 			case "a":
 				m.textinput.SetValue("")
 				m.textinput.Focus()
 				m.currentItem = Item{}
 				m.viewType = titleView
+
 			case "down", "j":
-				if m.listIndex < len(m.items) - 1 {
+				if m.listIndex < len(m.items)-1 {
 					m.listIndex++
 				} else {
 					m.listIndex = 0
 				}
+
 			case "up", "k":
 				if m.listIndex > 0 {
 					m.listIndex--
 				} else {
 					m.listIndex = len(m.items) - 1
 				}
+			case "d":
+				m.currentItem = m.items[m.listIndex]
+
+				var err error
+				if err = m.store.MarkDone(m.currentItem); err != nil {
+					log.Fatalf("Could not mark the item as done %v", err)
+				}
+
+				m.listIndex = 0
+
+				m.items, err = m.store.GetItems()
+				if err != nil {
+					log.Fatalf("Could not fetch items: %v", err)
+				}
+
 			}
 		case titleView:
 			switch key {
-			case "enter":
+			case "enter", "ctrl+s":
 				title := m.textinput.Value()
 				if title != "" {
 					m.currentItem.Title = title
@@ -99,6 +116,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.textarea.Focus()
 					m.textarea.CursorEnd()
 				}
+
+			case "q":
+				m.viewType = listView
+
+			case "ctrl+w":
+				return m, tea.Quit
+
 			}
 		case bodyView:
 			switch key {
@@ -115,10 +139,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case priorityView:
 			switch key {
-			case "enter", "ctrl + s":
+			case "enter", "ctrl+s":
 				priority := m.textinput.Value()
 				cint, err := strconv.ParseInt(priority, 10, 64)
-
 				if err != nil {
 					fmt.Println("Unable to store priority: ", err)
 					os.Exit(1)

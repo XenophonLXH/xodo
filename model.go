@@ -76,13 +76,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentItem = Item{}
 				m.viewType = titleView
 			case "down", "j":
-				if m.listIndex <= len(m.items) - 1 {
+				if m.listIndex < len(m.items) - 1 {
 					m.listIndex++
+				} else {
+					m.listIndex = 0
 				}
 			case "up", "k":
 				if m.listIndex > 0 {
 					m.listIndex--
-					m.listIndex--
+				} else {
+					m.listIndex = len(m.items) - 1
 				}
 			}
 		case titleView:

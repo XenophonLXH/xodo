@@ -104,7 +104,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					log.Fatalf("Could not fetch items: %v", err)
 				}
 
+			case "i":
+				m.currentItem = m.items[m.listIndex]
+				m.viewType = bodyView
+				m.textarea.SetValue(m.currentItem.Body)
+				m.textarea.Focus()
+				m.textarea.CursorEnd()
 			}
+
 		case titleView:
 			switch key {
 			case "enter", "ctrl+s":
@@ -134,9 +141,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.textinput.SetValue("")
 					m.textinput.Focus()
 					// Empty for Priority
-					m.textinput.SetValue("")
+					if m.currentItem.Priority != 0 {
+						m.textinput.SetValue(strconv.FormatInt(m.currentItem.Priority, 10))
+					} else {
+						m.textinput.SetValue("")
+					}
 				}
+			case "esc":
+				m.viewType = listView
 			}
+
 		case priorityView:
 			switch key {
 			case "enter", "ctrl+s":

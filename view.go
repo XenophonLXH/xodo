@@ -12,18 +12,15 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("#F5F2F2")).
 			Background(lipgloss.Color("#2B2A2A")).
-			PaddingLeft(25).
-			PaddingRight(25)
+			Padding(0, 35)
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
-			PaddingLeft(12).
-			PaddingRight(12)
+			Padding(0, 22)
 
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
-			PaddingLeft(1).
-			PaddingRight(1)
+			Padding(0, 1)
 	listTitle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FEB05D"))
 	listDesc = lipgloss.NewStyle().
@@ -63,7 +60,7 @@ func (m model) View() string {
 
 			shortbody := strings.ReplaceAll(n.Body, "\n", "")
 			if len(shortbody) > 25 {
-				shortbody = shortbody[:25]
+				shortbody = shortbody[:25] + "...."
 			}
 
 			priority := n.Priority

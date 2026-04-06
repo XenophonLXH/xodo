@@ -39,7 +39,7 @@ func (m model) View() string {
 		for i, n := range m.items {
 			prefix := " "
 			if m.listIndex == i {
-				prefix = "->"
+				prefix = "-> "
 			}
 
 			shortbody := strings.ReplaceAll(n.Body, "\n", "")
@@ -47,7 +47,7 @@ func (m model) View() string {
 				shortbody = shortbody[:25]
 			}
 
-			s += listRow.Render(prefix) + "[" + n.Title + "]:" + shortbody + newline
+			s += listRow.Render(prefix) + "[" + n.Title + "]: " + shortbody + newline
 		}
 
 		s += controlTool.Render("a - Add Item ; q - Exit")

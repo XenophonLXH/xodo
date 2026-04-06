@@ -75,6 +75,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textinput.Focus()
 				m.currentItem = Item{}
 				m.viewType = titleView
+			case "down", "j":
+				if m.listIndex <= len(m.items) - 1 {
+					m.listIndex++
+				}
+			case "up", "k":
+				if m.listIndex > 0 {
+					m.listIndex--
+					m.listIndex--
+				}
 			}
 		case titleView:
 			switch key {
@@ -115,7 +124,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentItem.Priority = cint
 
 				var errr error
-				if err = m.store.CreateItem(m.currentItem); errr != nil {
+				if errr = m.store.CreateItem(m.currentItem); errr != nil {
 					log.Fatalf("Could not create item %v", errr)
 				}
 

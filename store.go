@@ -21,10 +21,10 @@ type Store struct {
 	conn *sql.DB
 }
 
-func (s *Store) Init() error {
+func (s *Store) Init(dbpath string) error {
 	var err error
 
-	s.conn, err = sql.Open("sqlite3", "./xodo.db")
+	s.conn, err = sql.Open("sqlite3", dbpath)
 
 	if err != nil {
 		return err

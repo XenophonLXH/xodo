@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
+    "charm.land/bubbles/v2/textarea"
+    "charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 )
 

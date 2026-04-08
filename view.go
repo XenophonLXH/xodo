@@ -72,5 +72,8 @@ func (m model) View() tea.View {
 		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
-	return s
+	v := tea.NewView(s)
+	v.AltScreen = true
+
+	return v
 }

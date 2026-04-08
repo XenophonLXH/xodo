@@ -21,7 +21,7 @@ func main() {
 	m := NewModel(s)
 
 	// Bubble tea program
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("Unable to start TUI %v", err)

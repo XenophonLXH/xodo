@@ -5,7 +5,7 @@ import (
 	"os"
 	"log"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	m := NewModel(s)
 
 	// Bubble tea program
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {
 		log.Fatalf("Unable to start TUI %v", err)

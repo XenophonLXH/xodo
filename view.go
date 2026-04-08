@@ -4,7 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
+	tea "charm.land/bubbletea/v2"
 )
 
 var (
@@ -29,7 +30,7 @@ var (
 			Foreground(lipgloss.Color("#F5F2F2"))
 )
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	newline := "\n\n"
 	s := applicationName.Render("Your TODO List!") + newline
 
@@ -71,5 +72,8 @@ func (m model) View() string {
 		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
-	return s
+	v := tea.NewView(s)
+	v.AltScreen = true
+
+	return v
 }

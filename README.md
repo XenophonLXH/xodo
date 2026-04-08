@@ -58,10 +58,11 @@ Simple [Go](https://go.dev/) based TODO list presented as a [TUI](https://en.wik
     ~/xodo/databases
     ``` 
     directory.
-
+</details>
 <details>
     <summary>How do I use multiple lists?</summary>
     Simply run: 
     ```bash
     xodo mylist
     ```
+</details>

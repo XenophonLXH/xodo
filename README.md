@@ -45,9 +45,23 @@ Simple [Go](https://go.dev/) based TODO list presented as a [TUI](https://en.wik
 ## FAQ
 <details>
     <summary>Where are the databases stored?</summary>
-    Xodo will try and store it's databases in $XDG_DATA_HOME/xodo/databases.
-    If $XDG_DATA_HOME is not set it will create a ~/xodo/databases directory.
+    Xodo will try and store it's databases in:
+    ```bash
+    $XDG_DATA_HOME/xodo/databases
+    ```
+    If 
+    ```bash
+    $XDG_DATA_HOME
+    ``` 
+    is not set it will create a 
+    ```bash
+    ~/xodo/databases
+    ``` 
+    directory.
 
 <details>
     <summary>How do I use multiple lists?</summary>
-    Simply run ```bash xodo mylist```
+    Simply run: 
+    ```bash
+    xodo mylist
+    ```

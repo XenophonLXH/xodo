@@ -55,3 +55,15 @@ Xodo will try and store it's databases in $XDG_DATA_HOME/xodo/databases. If $XDG
 
 Simply run: xodo mylist
 </details>
+
+<details>
+<summary>How do I install this?</summary>
+<br>
+Run `npm install` and then `npm start`.
+</details>
+
+<details>
+<summary>How do I contribute?</summary>
+<br>
+Please read our contribution guidelines.
+</details>

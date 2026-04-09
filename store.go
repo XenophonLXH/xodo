@@ -5,15 +5,19 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Item struct {
-	ID int32
-	Title string
-	Body string
-	Priority int64
-	Done bool
+	ID           int32
+	Title        string
+	Body         string
+	Priority     int64
+	Done         bool
+	DateCreate   int32
 	DateComplete int32
 }
 
@@ -25,23 +29,25 @@ func (s *Store) Init(dbpath string) error {
 	var err error
 
 	s.conn, err = sql.Open("sqlite3", dbpath)
-
 	if err != nil {
 		return err
 	}
 
-	queryTableCreate := `
-		CREATE TABLE IF NOT EXISTS items (
-			id integer not null primary key,
-			title text not null,
-			body text,
-			priority integer not null,
-			done bool,
-			date_complete integer
-		);
-	`
+	driver, err := sqlite3.WithInstance(s.conn, &sqlite3.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if _, err := s.conn.Exec(queryTableCreate); err != nil {
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"sqlite3",
+		driver,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return err
 	}
 
@@ -56,15 +62,15 @@ func (s *Store) GetItems() ([]Item, error) {
 			body,
 			priority,
 			done,
+			date_create,
 			date_complete
 		FROM
 			items
 		WHERE done = false
 		ORDER BY priority asc;
-	`;
+	`
 
 	rows, err := s.conn.Query(queryGetItems)
-
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +85,7 @@ func (s *Store) GetItems() ([]Item, error) {
 			&item.Body,
 			&item.Priority,
 			&item.Done,
+			&item.DateCreate,
 			&item.DateComplete,
 		)
 		items = append(items, item)
@@ -92,14 +99,31 @@ func (s *Store) CreateItem(item Item) error {
 		item.ID = int32(time.Now().UTC().Unix())
 	}
 
+	item.DateCreate = int32(time.Now().UTC().Unix())
+
 	queryCreateItem := `
-		INSERT INTO items (id, title, body, priority, done, date_complete)
-		VALUES (?, ?, ?, ?, ?, ?)
-		ON CONFLICT(id) DO UPDATE
-		SET title=excluded.title, body=excluded.body, priority=excluded.priority, done=excluded.done, date_complete=excluded.date_complete;
+		INSERT INTO items (id, title, body, priority, done, date_create, date_complete)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+			ON CONFLICT(id) DO UPDATE
+		SET 
+			title=excluded.title, 
+			body=excluded.body, 
+			priority=excluded.priority, 
+			done=excluded.done, 
+			date_create=excluded.date_create, 
+			date_complete=excluded.date_complete;
 	`
 
-	if _, err := s.conn.Exec(queryCreateItem, item.ID, item.Title, item.Body, item.Priority, false, 0); err != nil {
+	if _, err := s.conn.Exec(
+		queryCreateItem,
+		item.ID,
+		item.Title,
+		item.Body,
+		item.Priority,
+		false,
+		item.DateCreate,
+		0,
+	); err != nil {
 		return err
 	}
 

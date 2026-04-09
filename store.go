@@ -4,11 +4,13 @@ import (
 	"database/sql"
 	"log"
 	"time"
+	"embed"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
 type Item struct {
@@ -25,6 +27,9 @@ type Store struct {
 	conn *sql.DB
 }
 
+//go:embed migrations/*.sql
+var fs embed.FS
+
 func (s *Store) Init(dbpath string) error {
 	var err error
 
@@ -35,11 +40,17 @@ func (s *Store) Init(dbpath string) error {
 
 	driver, err := sqlite3.WithInstance(s.conn, &sqlite3.Config{})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+	migdifs, err := iofs.New(fs, "migrations")
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewWithInstance(
+		"iofs",
+		migdifs,
 		"sqlite3",
 		driver,
 	)

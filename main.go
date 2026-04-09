@@ -33,12 +33,13 @@ func getUserHome() string {
 
 func main() {
 
+	// Default to xodo as db
+	// if none is passed
 	var dbname = "xodo"
 	if len(os.Args) > 1 {
 		dbname = os.Args[1]
 	}
 	dbpath := getDatabaseDir(dbname)
-	fmt.Println("Using dbpath: ", dbpath)
 
 	// Get connected to the database
 	s :=  new(Store)

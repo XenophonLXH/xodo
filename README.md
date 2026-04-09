@@ -7,6 +7,15 @@ Simple [Go](https://go.dev/) based TODO list presented as a [TUI](https://en.wik
 - [Lipgloss](https://github.com/charmbracelet/lipgloss)
 - [Bubbles](https://github.com/charmbracelet/bubbles)
 
+## Demo
+![Demo](assets/demo/demo.gif)
+
+## Install
+Simply run:
+```bash
+curl -sSL https://raw.githubusercontent.com/XenophonLXH/xodo/main/install.sh | sh
+```
+
 ## Keybindings
 ### List View
 
@@ -41,6 +50,7 @@ Simple [Go](https://go.dev/) based TODO list presented as a [TUI](https://en.wik
 |-----|-------------------------------------|
 |   enter  | Save and move on                      |
 |   esc  | Back to Description View                                |
+
 
 ## FAQ
 

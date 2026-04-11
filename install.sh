@@ -26,7 +26,7 @@ echo "URL: $URL"
 curl -sSfL "$URL" -o "/tmp/$ARCHIVE"
 tar -xzf "/tmp/$ARCHIVE" -C "/tmp" "$BINARY"
 chmod +x "/tmp/$BINARY"
-mv "/tmp/$BINARY" "$INSTALL_DIR/$BINARY"
+sudo mv "/tmp/$BINARY" "$INSTALL_DIR/$BINARY"
 rm "/tmp/$ARCHIVE"
 
 echo "Done! Run: $BINARY"

@@ -20,9 +20,13 @@ VERSION=$(curl -sSf "https://api.github.com/repos/$REPO/releases/latest" \
 
 echo "Installing $BINARY $VERSION..."
 
-URL="https://github.com/$REPO/releases/download/$VERSION/${BINARY}_${OS}_${ARCH}"
-curl -sSfL "$URL" -o "/tmp/$BINARY"
+ARCHIVE="${BINARY}_${OS}_${ARCH}.tar.gz"
+URL="https://github.com/$REPO/releases/download/$VERSION/$ARCHIVE"
+echo "URL: $URL"
+curl -sSfL "$URL" -o "/tmp/$ARCHIVE"
+tar -xzf "/tmp/$ARCHIVE" -C "/tmp" "$BINARY"
 chmod +x "/tmp/$BINARY"
 mv "/tmp/$BINARY" "$INSTALL_DIR/$BINARY"
+rm "/tmp/$ARCHIVE"
 
 echo "Done! Run: $BINARY"

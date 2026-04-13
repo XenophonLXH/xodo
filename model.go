@@ -19,6 +19,7 @@ const (
 )
 
 type model struct {
+	listName	string
 	store       *Store
 	viewType    uint
 	textarea    textarea.Model

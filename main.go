@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"log"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 )
@@ -51,6 +52,9 @@ func main() {
 
 	// Initiate the model
 	m := NewModel(s)
+
+	// Set list title
+	m.listName = strings.ToUpper(dbname)
 
 	// Bubble tea program
 	p := tea.NewProgram(m)

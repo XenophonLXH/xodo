@@ -9,16 +9,27 @@ import (
 )
 
 var (
-	applicationName = lipgloss.NewStyle().
+	titleFG = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#F5F2F2")).
+			Background(lipgloss.Color("#2B2A2A"))
+
+	titleBG = lipgloss.NewStyle().
+			Bold(true).
 			Background(lipgloss.Color("#2B2A2A")).
-			Padding(0, 35)
+			Foreground(lipgloss.Color("#FEB05D")).
+			Padding(0, 32)
+
+	listNameFG = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("#FEB05D")).
+			Padding(0, 1).
+			Background(lipgloss.Color("#2B2A2A"))
+
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
 			Padding(0, 22)
-
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Padding(0, 1)
@@ -32,7 +43,9 @@ var (
 
 func (m model) View() tea.View {
 	newline := "\n\n"
-	s := applicationName.Render("Your TODO List!") + newline
+	listName := listNameFG.Render(m.listName)
+	title := titleFG.Render("Your") + listName + titleFG.Render("TODO list!")
+	s := titleBG.Render(title) + newline
 
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
@@ -66,7 +79,9 @@ func (m model) View() tea.View {
 
 			priority := n.Priority
 
-			s += listPrio.Render("("+strconv.FormatInt(priority, 10)+") ") + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			s += listPrio.Render(
+				"("+strconv.FormatInt(priority, 10)+") ",
+			) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
 		}
 
 		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")

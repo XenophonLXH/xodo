@@ -135,17 +135,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "d":
 				m.currentItem = m.items[m.listIndex]
 
-				var err error
-				if err = m.store.MarkDone(m.currentItem); err != nil {
-					log.Fatalf("Could not mark the item as done %v", err)
+				if !m.currentItem.Done {
+					var err error
+					if err = m.store.MarkDone(m.currentItem); err != nil {
+						log.Fatalf("Could not mark the item as done %v", err)
+					}
+
+					m.listIndex = 0
+
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not fetch items: %v", err)
+					}
 				}
 
-				m.listIndex = 0
+			case "p":
+				m.currentItem = m.items[m.listIndex]
 
-				m.items, err = m.store.GetItems()
-				if err != nil {
-					log.Fatalf("Could not fetch items: %v", err)
+				if m.currentItem.Done {
+					var err error
+					if err = m.store.MarkPending(m.currentItem); err != nil {
+						log.Fatalf("Could not mark the item as done %v", err)
+					}
+
+					m.listIndex = 0
+
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not fetch items: %v", err)
+					}
 				}
+
 
 			case "i":
 				m.currentItem = m.items[m.listIndex]

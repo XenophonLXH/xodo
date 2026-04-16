@@ -242,3 +242,26 @@ func (s *Store) MarkDone(item Item) error {
 
 	return nil
 }
+
+func (s *Store) MarkPending(item Item) error {
+	if item.ID == 0 {
+		log.Fatal("Could not update Item, item does not exit")
+	}
+
+	item.DateComplete = int32(time.Now().UTC().Unix())
+
+	queryMarkDone := `
+		UPDATE
+			items
+		SET 
+			done = false, 
+			date_complete = ?
+		WHERE 
+			id = ?;
+	`
+	if _, err := s.conn.Exec(queryMarkDone, item.DateComplete, item.ID); err != nil {
+		return err
+	}
+
+	return nil
+}

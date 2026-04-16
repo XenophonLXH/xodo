@@ -77,7 +77,6 @@ func (s *Store) GetItems() ([]Item, error) {
 			date_complete
 		FROM
 			items
-		WHERE done = false
 		ORDER BY priority asc;
 	`
 

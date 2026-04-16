@@ -58,7 +58,7 @@ func (m model) View() tea.View {
 	s := titleBG.Render(title) + "\n"
 
 	// Current View Type
-	s += renderViewType(m.listMode)
+	s += renderListMode(m.listMode)
 
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
@@ -92,9 +92,19 @@ func (m model) View() tea.View {
 
 			priority := n.Priority
 
-			s += listPrio.Render(
-				"("+strconv.FormatInt(priority, 10)+") ",
-			) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			if m.listMode == 0 && !n.Done {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			} else if m.listMode == 1 && n.Done {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			} else if m.listMode == 2 {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			}
 		}
 
 		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
@@ -106,7 +116,7 @@ func (m model) View() tea.View {
 	return v
 }
 
-func renderViewType(lm listMode) (s string) {
+func renderListMode(lm listMode) (s string) {
 	newline := "\n\n"
 
 	if lm == 0 {

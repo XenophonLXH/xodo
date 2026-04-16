@@ -4,21 +4,21 @@ import (
 	"strconv"
 	"strings"
 
-	"charm.land/lipgloss/v2"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 var (
 	titleFG = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#F5F2F2")).
-			Background(lipgloss.Color("#2B2A2A"))
+		Bold(true).
+		Foreground(lipgloss.Color("#F5F2F2")).
+		Background(lipgloss.Color("#2B2A2A"))
 
 	titleBG = lipgloss.NewStyle().
-			Bold(true).
-			Background(lipgloss.Color("#2B2A2A")).
-			Foreground(lipgloss.Color("#FEB05D")).
-			Padding(0, 32)
+		Bold(true).
+		Background(lipgloss.Color("#2B2A2A")).
+		Foreground(lipgloss.Color("#FEB05D")).
+		Padding(0, 32)
 
 	listNameFG = lipgloss.NewStyle().
 			Bold(true).
@@ -39,13 +39,28 @@ var (
 			Foreground(lipgloss.Color("#F5F2F2"))
 	listPrio = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F5F2F2"))
+
+	viewModeInactive = lipgloss.NewStyle().
+				Background(lipgloss.Color("#2B2A2A")).
+				Padding(0, 1)
+
+	viewModeActive = lipgloss.NewStyle().
+			Background(lipgloss.Color("#5A7ACD")).
+			Foreground(lipgloss.White).
+			Padding(0, 1)
+
+
 )
 
 func (m model) View() tea.View {
+	// Title
 	newline := "\n\n"
 	listName := listNameFG.Render(m.listName)
 	title := titleFG.Render("Your") + listName + titleFG.Render("TODO list!")
 	s := titleBG.Render(title) + newline
+
+	// Current View Type
+	s += renderViewType(m.listMode)
 
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
@@ -91,4 +106,22 @@ func (m model) View() tea.View {
 	v.AltScreen = true
 
 	return v
+}
+
+func renderViewType(lm listMode) (s string) {
+	newline := "\n\n"
+
+	if lm == 0 {
+		return  viewModeActive.Render("Pending") + viewModeInactive.Render("Done") + viewModeInactive.Render("All") + newline
+	}
+
+	if lm == 1 {
+		return  viewModeInactive.Render("Pending") + viewModeActive.Render("Done") + viewModeInactive.Render("All") + newline
+	}
+
+	if lm == 2 {
+		return  viewModeInactive.Render("Pending") + viewModeInactive.Render("Done") + viewModeActive.Render("All") + newline
+	}
+
+	return ""
 }

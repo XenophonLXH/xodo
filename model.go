@@ -18,6 +18,14 @@ const (
 	priorityView
 )
 
+type listMode int
+
+const (
+	pending = iota
+	done
+	all
+)
+
 type model struct {
 	listName	string
 	store       *Store
@@ -27,6 +35,7 @@ type model struct {
 	currentItem Item
 	items       []Item
 	listIndex   int
+	listMode	listMode
 }
 
 func NewModel(s *Store) model {
@@ -42,6 +51,7 @@ func NewModel(s *Store) model {
 		textarea:  textarea.New(),
 		textinput: textinput.New(),
 		items:     items,
+		listMode: 0,
 	}
 }
 

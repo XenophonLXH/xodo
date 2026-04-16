@@ -79,6 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case listView:
 			switch key {
 			case "tab":
+				m.listIndex = 0
 				if m.listMode == 0 {
 					m.listMode = 1
 				} else if m.listMode == 1 {

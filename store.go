@@ -104,6 +104,86 @@ func (s *Store) GetItems() ([]Item, error) {
 	return items, nil
 }
 
+func (s *Store) GetPendingItems() ([]Item, error) {
+	queryGetItems := `
+		SELECT
+			id,
+			title,
+			body,
+			priority,
+			done,
+			date_create,
+			date_complete
+		FROM
+			items
+		WHERE done = false
+		ORDER BY priority asc;
+	`
+
+	rows, err := s.conn.Query(queryGetItems)
+	if err != nil {
+		return nil, err
+	}
+
+	items := []Item{}
+	defer rows.Close()
+	for rows.Next() {
+		item := Item{}
+		rows.Scan(
+			&item.ID,
+			&item.Title,
+			&item.Body,
+			&item.Priority,
+			&item.Done,
+			&item.DateCreate,
+			&item.DateComplete,
+		)
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
+func (s *Store) GetDoneItems() ([]Item, error) {
+	queryGetItems := `
+		SELECT
+			id,
+			title,
+			body,
+			priority,
+			done,
+			date_create,
+			date_complete
+		FROM
+			items
+		WHERE done = true
+		ORDER BY priority asc;
+	`
+
+	rows, err := s.conn.Query(queryGetItems)
+	if err != nil {
+		return nil, err
+	}
+
+	items := []Item{}
+	defer rows.Close()
+	for rows.Next() {
+		item := Item{}
+		rows.Scan(
+			&item.ID,
+			&item.Title,
+			&item.Body,
+			&item.Priority,
+			&item.Done,
+			&item.DateCreate,
+			&item.DateComplete,
+		)
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
 func (s *Store) CreateItem(item Item) error {
 	if item.ID == 0 {
 		item.ID = int32(time.Now().UTC().Unix())

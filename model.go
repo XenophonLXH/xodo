@@ -80,12 +80,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch key {
 			case "tab":
 				m.listIndex = 0
-				if m.listMode == 0 {
+				switch m.listMode {
+				case 0:
 					m.listMode = 1
-				} else if m.listMode == 1 {
+
+					var err error
+					m.items, err = m.store.GetDoneItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
+				case 1:
 					m.listMode = 2
-				} else if m.listMode == 2 {
+
+					var err error
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
+				case 2:
 					m.listMode = 0
+
+					var err error
+					m.items, err = m.store.GetPendingItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
 				}
 			case "q":
 				return m, tea.Quit

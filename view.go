@@ -107,7 +107,7 @@ func (m model) View() tea.View {
 			}
 		}
 
-		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+		s += renderHelpTool(m)
 	}
 
 	v := tea.NewView(s)
@@ -129,6 +129,16 @@ func renderListMode(lm listMode) (s string) {
 
 	if lm == 2 {
 		return  viewModeInactive.Render("Pending") + viewModeInactive.Render("Done") + viewModeActive.Render("All") + newline
+	}
+
+	return ""
+}
+
+func renderHelpTool(m model) (s string) {
+	if m.items[m.listIndex].Done {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+	} else {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
 	return ""

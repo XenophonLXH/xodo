@@ -51,7 +51,7 @@ func NewModel(s *Store) model {
 		textarea:  textarea.New(),
 		textinput: textinput.New(),
 		items:     items,
-		listMode: 0,
+		listMode:	0,
 	}
 }
 
@@ -78,6 +78,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch m.viewType {
 		case listView:
 			switch key {
+			case "tab":
+				if m.listMode == 0 {
+					m.listMode = 1
+				} else if m.listMode == 1 {
+					m.listMode = 2
+				} else if m.listMode == 2 {
+					m.listMode = 0
+				}
 			case "q":
 				return m, tea.Quit
 

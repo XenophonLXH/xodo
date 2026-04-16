@@ -48,8 +48,6 @@ var (
 			Background(lipgloss.Color("#5A7ACD")).
 			Foreground(lipgloss.White).
 			Padding(0, 1)
-
-
 )
 
 func (m model) View() tea.View {
@@ -57,7 +55,7 @@ func (m model) View() tea.View {
 	newline := "\n\n"
 	listName := listNameFG.Render(m.listName)
 	title := titleFG.Render("Your") + listName + titleFG.Render("TODO list!")
-	s := titleBG.Render(title) + newline
+	s := titleBG.Render(title) + "\n"
 
 	// Current View Type
 	s += renderViewType(m.listMode)

@@ -18,7 +18,8 @@ var (
 		Bold(true).
 		Background(lipgloss.Color("#2B2A2A")).
 		Foreground(lipgloss.Color("#FEB05D")).
-		Padding(0, 32)
+		Padding(0, 32).
+		BorderStyle(lipgloss.RoundedBorder())
 
 	listNameFG = lipgloss.NewStyle().
 			Bold(true).
@@ -29,7 +30,10 @@ var (
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
-			Padding(0, 22)
+			Padding(0, 22).
+			Margin(0).
+			BorderStyle(lipgloss.RoundedBorder())
+
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Padding(0, 1)
@@ -42,12 +46,17 @@ var (
 
 	viewModeInactive = lipgloss.NewStyle().
 				Background(lipgloss.Color("#2B2A2A")).
-				Padding(0, 1)
+				Width(27)	.
+				Padding(0, 1).
+				Margin(0, 1).
+				Align(lipgloss.Center)
 
 	viewModeActive = lipgloss.NewStyle().
 			Background(lipgloss.Color("#5A7ACD")).
 			Foreground(lipgloss.White).
-			Padding(0, 1)
+			Width(27).
+			Padding(0, 1).
+			Align(lipgloss.Center)
 )
 
 func (m model) View() tea.View {

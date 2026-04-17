@@ -39,7 +39,7 @@ type model struct {
 }
 
 func NewModel(s *Store) model {
-	items, err := s.GetItems()
+	items, err := s.GetPendingItems()
 	if err != nil {
 		fmt.Printf("Could not create a new Model: %v", err)
 		os.Exit(1)

@@ -3,22 +3,26 @@ package main
 import (
 	"strconv"
 	"strings"
+	"os"
 
-	"charm.land/lipgloss/v2"
+	"golang.org/x/term"
+
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 var (
 	titleFG = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#F5F2F2")).
-			Background(lipgloss.Color("#2B2A2A"))
+		Bold(true).
+		Foreground(lipgloss.Color("#F5F2F2")).
+		Background(lipgloss.Color("#2B2A2A"))
 
 	titleBG = lipgloss.NewStyle().
-			Bold(true).
-			Background(lipgloss.Color("#2B2A2A")).
-			Foreground(lipgloss.Color("#FEB05D")).
-			Padding(0, 32)
+		Bold(true).
+		Background(lipgloss.Color("#2B2A2A")).
+		Foreground(lipgloss.Color("#FEB05D")).
+		BorderStyle(lipgloss.RoundedBorder()).
+		Align(lipgloss.Center)
 
 	listNameFG = lipgloss.NewStyle().
 			Bold(true).
@@ -29,7 +33,11 @@ var (
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
-			Padding(0, 22)
+			Padding(0, 2).
+			Margin(0).
+			BorderStyle(lipgloss.RoundedBorder()).
+			Align(lipgloss.Center)
+
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Padding(0, 1)
@@ -39,13 +47,37 @@ var (
 			Foreground(lipgloss.Color("#F5F2F2"))
 	listPrio = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F5F2F2"))
+
+	viewModeInactive = lipgloss.NewStyle().
+				Background(lipgloss.Color("#2B2A2A")).
+				Padding(0, 1).
+				Margin(0, 1).
+				Align(lipgloss.Center)
+
+	viewModeActive = lipgloss.NewStyle().
+			Background(lipgloss.Color("#5A7ACD")).
+			Foreground(lipgloss.White).
+			Padding(0, 1).
+			Align(lipgloss.Center)
 )
 
 func (m model) View() tea.View {
 	newline := "\n\n"
+	// Title
+	termWidth, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		termWidth = 80
+	}
+	titleBG = titleBG.Width(termWidth - 2)
 	listName := listNameFG.Render(m.listName)
 	title := titleFG.Render("Your") + listName + titleFG.Render("TODO list!")
-	s := titleBG.Render(title) + newline
+	s := titleBG.Render(title) + "\n"
+
+	// Current View Type
+	s += renderListMode(m.listMode, termWidth)
+
+	// Help tool
+	s += renderHelpTool(m, termWidth)
 
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
@@ -79,16 +111,63 @@ func (m model) View() tea.View {
 
 			priority := n.Priority
 
-			s += listPrio.Render(
-				"("+strconv.FormatInt(priority, 10)+") ",
-			) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			if m.listMode == 0 && !n.Done {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			} else if m.listMode == 1 && n.Done {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			} else if m.listMode == 2 {
+				s += listPrio.Render(
+					"("+strconv.FormatInt(priority, 10)+") ",
+				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			}
 		}
-
-		s += controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
 	v := tea.NewView(s)
 	v.AltScreen = true
 
 	return v
+}
+
+func renderListMode(lm listMode, t int) (s string) {
+	newline := "\n\n"
+
+	viewModeActive = viewModeActive.Width((t / 3) - 2)
+	viewModeInactive = viewModeInactive.Width((t / 3) - 2)
+
+	if lm == 0 {
+		return  viewModeActive.Render("Pending") + viewModeInactive.Render("Done") + viewModeInactive.Render("All") + newline
+	}
+
+	if lm == 1 {
+		return  viewModeInactive.Render("Pending") + viewModeActive.Render("Done") + viewModeInactive.Render("All") + newline
+	}
+
+	if lm == 2 {
+		return  viewModeInactive.Render("Pending") + viewModeInactive.Render("Done") + viewModeActive.Render("All") + newline
+	}
+
+	return ""
+}
+
+func renderHelpTool(m model, t int) (s string) {
+	controlTool = controlTool.Width(t)
+	if len(m.items) == 0 && m.listMode == 0 || m.listMode == 2 {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+	}
+
+	if len(m.items) == 0 && m.listMode == 1 {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+	}
+
+	if m.items[m.listIndex].Done {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+	} else {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+	}
+
 }

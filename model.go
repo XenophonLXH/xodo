@@ -18,6 +18,14 @@ const (
 	priorityView
 )
 
+type listMode int
+
+const (
+	pending = iota
+	done
+	all
+)
+
 type model struct {
 	listName	string
 	store       *Store
@@ -27,10 +35,11 @@ type model struct {
 	currentItem Item
 	items       []Item
 	listIndex   int
+	listMode	listMode
 }
 
 func NewModel(s *Store) model {
-	items, err := s.GetItems()
+	items, err := s.GetPendingItems()
 	if err != nil {
 		fmt.Printf("Could not create a new Model: %v", err)
 		os.Exit(1)
@@ -42,6 +51,7 @@ func NewModel(s *Store) model {
 		textarea:  textarea.New(),
 		textinput: textinput.New(),
 		items:     items,
+		listMode:	0,
 	}
 }
 
@@ -68,6 +78,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch m.viewType {
 		case listView:
 			switch key {
+			case "tab":
+				m.listIndex = 0
+				switch m.listMode {
+				case 0:
+					m.listMode = 1
+
+					var err error
+					m.items, err = m.store.GetDoneItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
+				case 1:
+					m.listMode = 2
+
+					var err error
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
+				case 2:
+					m.listMode = 0
+
+					var err error
+					m.items, err = m.store.GetPendingItems()
+					if err != nil {
+						log.Fatalf("Could not get done items: %v", err)
+					}
+
+				}
 			case "q":
 				return m, tea.Quit
 
@@ -94,17 +135,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "d":
 				m.currentItem = m.items[m.listIndex]
 
-				var err error
-				if err = m.store.MarkDone(m.currentItem); err != nil {
-					log.Fatalf("Could not mark the item as done %v", err)
+				if !m.currentItem.Done {
+					var err error
+					if err = m.store.MarkDone(m.currentItem); err != nil {
+						log.Fatalf("Could not mark the item as done %v", err)
+					}
+
+					m.listIndex = 0
+
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not fetch items: %v", err)
+					}
 				}
 
-				m.listIndex = 0
+			case "p":
+				m.currentItem = m.items[m.listIndex]
 
-				m.items, err = m.store.GetItems()
-				if err != nil {
-					log.Fatalf("Could not fetch items: %v", err)
+				if m.currentItem.Done {
+					var err error
+					if err = m.store.MarkPending(m.currentItem); err != nil {
+						log.Fatalf("Could not mark the item as done %v", err)
+					}
+
+					m.listIndex = 0
+
+					m.items, err = m.store.GetItems()
+					if err != nil {
+						log.Fatalf("Could not fetch items: %v", err)
+					}
 				}
+
 
 			case "i":
 				m.currentItem = m.items[m.listIndex]

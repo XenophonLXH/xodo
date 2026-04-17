@@ -135,11 +135,18 @@ func renderListMode(lm listMode) (s string) {
 }
 
 func renderHelpTool(m model) (s string) {
+	if len(m.items) == 0 && m.listMode == 0 || m.listMode == 2 {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+	}
+
+	if len(m.items) == 0 && m.listMode == 1 {
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+	}
+
 	if m.items[m.listIndex].Done {
 		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
 	} else {
 		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
 	}
 
-	return ""
 }

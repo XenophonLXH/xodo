@@ -8,6 +8,7 @@ import (
 
     "charm.land/bubbles/v2/textarea"
     "charm.land/bubbles/v2/textinput"
+    "charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 )
 
@@ -29,6 +30,7 @@ const (
 type model struct {
 	listName	string
 	store       *Store
+	viewport	viewport.Model
 	viewType    uint
 	textarea    textarea.Model
 	textinput   textinput.Model
@@ -45,8 +47,11 @@ func NewModel(s *Store) model {
 		os.Exit(1)
 	}
 
+	viewp := viewport.New(viewport.WithWidth(5), viewport.WithHeight(5))
+
 	return model{
 		store:     s,
+		viewport: viewp,
 		viewType:  listView,
 		textarea:  textarea.New(),
 		textinput: textinput.New(),
@@ -77,6 +82,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		key := msg.String()
 		switch m.viewType {
 		case listView:
+			m.viewport, cmd = m.viewport.Update(msg)
+			cmds = append(cmds, cmd)
 			switch key {
 			case "tab":
 				m.listIndex = 0
@@ -250,6 +257,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewType = listView
 			}
 		}
+
+		case tea.WindowSizeMsg:
+			m.viewport.SetWidth(msg.Width)
+			m.viewport.SetHeight(msg.Height - 8)
 	}
 
 	return m, tea.Batch(cmds...)

@@ -33,9 +33,7 @@ var (
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Background(lipgloss.Color("#2B2A2A")).
-			Padding(0, 2).
 			Margin(0).
-			BorderStyle(lipgloss.RoundedBorder()).
 			Align(lipgloss.Center)
 
 	listPointer = lipgloss.NewStyle().
@@ -76,9 +74,6 @@ func (m model) View() tea.View {
 	// Current View Type
 	s += renderListMode(m.listMode, termWidth)
 
-	// Help tool
-	s += renderHelpTool(m, termWidth)
-
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
 		s += m.textinput.View() + newline
@@ -97,6 +92,8 @@ func (m model) View() tea.View {
 		s += controlTool.Render("enter - save ; esc - back")
 	}
 
+	s += newline
+	var viewPortContent string
 	if m.viewType == listView {
 		for i, n := range m.items {
 			prefix := " "
@@ -110,22 +107,18 @@ func (m model) View() tea.View {
 			}
 
 			priority := n.Priority
-
-			if m.listMode == 0 && !n.Done {
-				s += listPrio.Render(
-					"("+strconv.FormatInt(priority, 10)+") ",
-				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
-			} else if m.listMode == 1 && n.Done {
-				s += listPrio.Render(
-					"("+strconv.FormatInt(priority, 10)+") ",
-				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
-			} else if m.listMode == 2 {
-				s += listPrio.Render(
-					"("+strconv.FormatInt(priority, 10)+") ",
-				) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
-			}
+			viewPortContent += listPrio.Render(
+				"("+strconv.FormatInt(priority, 10)+") ",
+			) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
 		}
 	}
+
+	// Viewport 
+	m.viewport.SetContent(viewPortContent)
+	s += m.viewport.View()
+
+	// Help tool
+	s += renderHelpTool(m, termWidth)
 
 	v := tea.NewView(s)
 	v.AltScreen = true

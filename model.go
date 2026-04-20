@@ -143,7 +143,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					m.listIndex = 0
 
-					m.items, err = m.store.GetItems()
+					if m.listMode == 0 {
+						m.items, err = m.store.GetPendingItems()
+					} else if m.listMode == 1 {
+						m.items, err = m.store.GetDoneItems()
+					} else {
+						m.items, err = m.store.GetItems()
+					}
 					if err != nil {
 						log.Fatalf("Could not fetch items: %v", err)
 					}
@@ -160,7 +166,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					m.listIndex = 0
 
-					m.items, err = m.store.GetItems()
+					if m.listMode == 0 {
+						m.items, err = m.store.GetPendingItems()
+					} else if m.listMode == 1 {
+						m.items, err = m.store.GetDoneItems()
+					} else {
+						m.items, err = m.store.GetItems()
+					}
 					if err != nil {
 						log.Fatalf("Could not fetch items: %v", err)
 					}

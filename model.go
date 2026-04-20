@@ -240,7 +240,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					log.Fatalf("Could not create item: %v", errr)
 				}
 
-				m.items, err = m.store.GetItems()
+				m.listIndex = 0
+				m.listMode = 0
+				m.items, err = m.store.GetPendingItems()
 				if err != nil {
 					log.Fatalf("Could not get items: %v", err)
 				}

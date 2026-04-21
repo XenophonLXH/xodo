@@ -64,6 +64,202 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+func handleListView(
+	m model,
+	cmds []tea.Cmd,
+	cmd tea.Cmd,
+	key string,
+	msg tea.KeyPressMsg,
+) model {
+	m.viewport, cmd = m.viewport.Update(msg)
+	cmds = append(cmds, cmd)
+	switch key {
+	case "tab":
+		m.listIndex = 0
+		switch m.listMode {
+		case 0:
+			m.listMode = 1
+
+			var err error
+			m.items, err = m.store.GetDoneItems()
+			if err != nil {
+				log.Fatalf("Could not get done items: %v", err)
+			}
+
+		case 1:
+			m.listMode = 2
+
+			var err error
+			m.items, err = m.store.GetItems()
+			if err != nil {
+				log.Fatalf("Could not get done items: %v", err)
+			}
+
+		case 2:
+			m.listMode = 0
+
+			var err error
+			m.items, err = m.store.GetPendingItems()
+			if err != nil {
+				log.Fatalf("Could not get done items: %v", err)
+			}
+
+		}
+
+	case "a":
+		m.textinput.SetValue("")
+		m.textinput.Focus()
+		m.currentItem = Item{}
+		m.viewType = titleView
+
+	case "down", "j":
+		if m.listIndex < len(m.items)-1 {
+			m.listIndex++
+		} else {
+			m.listIndex = 0
+		}
+
+	case "up", "k":
+		if m.listIndex > 0 {
+			m.listIndex--
+		} else {
+			m.listIndex = len(m.items) - 1
+		}
+
+	case "d":
+		m.currentItem = m.items[m.listIndex]
+
+		if !m.currentItem.Done {
+			var err error
+			if err = m.store.MarkDone(m.currentItem); err != nil {
+				log.Fatalf("Could not mark the item as done %v", err)
+			}
+
+			m.listIndex = 0
+
+			if m.listMode == 0 {
+				m.items, err = m.store.GetPendingItems()
+			} else if m.listMode == 1 {
+				m.items, err = m.store.GetDoneItems()
+			} else {
+				m.items, err = m.store.GetItems()
+			}
+			if err != nil {
+				log.Fatalf("Could not fetch items: %v", err)
+			}
+		}
+
+	case "p":
+		m.currentItem = m.items[m.listIndex]
+
+		if m.currentItem.Done {
+			var err error
+			if err = m.store.MarkPending(m.currentItem); err != nil {
+				log.Fatalf("Could not mark the item as done %v", err)
+			}
+
+			m.listIndex = 0
+
+			if m.listMode == 0 {
+				m.items, err = m.store.GetPendingItems()
+			} else if m.listMode == 1 {
+				m.items, err = m.store.GetDoneItems()
+			} else {
+				m.items, err = m.store.GetItems()
+			}
+			if err != nil {
+				log.Fatalf("Could not fetch items: %v", err)
+			}
+		}
+
+
+	case "i":
+		m.currentItem = m.items[m.listIndex]
+		m.viewType = bodyView
+		m.textarea.SetValue(m.currentItem.Body)
+		m.textarea.Focus()
+		m.textarea.CursorEnd()
+	}
+	return m
+}
+
+func handleTitleView(m model, key string) model {
+	switch key {
+	case "enter", "ctrl+s":
+		title := m.textinput.Value()
+		if title != "" {
+			m.currentItem.Title = title
+			m.viewType = bodyView
+			m.textarea.SetValue("")
+			m.textarea.Focus()
+			m.textarea.CursorEnd()
+		}
+
+	case "q":
+		m.viewType = listView
+	}
+	return m
+}
+
+func handleBodyView(m model, key string) model {
+	switch key {
+	case "enter":
+		body := m.textarea.Value()
+		if body != "" {
+			m.currentItem.Body = body
+			m.viewType = priorityView
+			m.textinput.SetValue("")
+			m.textinput.Focus()
+			// Empty for Priority
+			if m.currentItem.Priority != 0 {
+				m.textinput.SetValue(strconv.FormatInt(m.currentItem.Priority, 10))
+			} else {
+				m.textinput.SetValue("")
+			}
+		}
+	case "esc":
+		m.viewType = listView
+	}
+	return m
+}
+
+func handlePriorityView(m model, key string) model {
+	switch key {
+	case "enter", "ctrl+s":
+		priority := m.textinput.Value()
+		cint, err := strconv.ParseInt(priority, 10, 64)
+		if err != nil {
+			fmt.Println("Unable to store priority: ", err)
+			os.Exit(1)
+		}
+
+		m.currentItem.Priority = cint
+
+		var errr error
+		if errr = m.store.CreateItem(m.currentItem); errr != nil {
+			log.Fatalf("Could not create item: %v", errr)
+		}
+
+		m.listIndex = 0
+		m.listMode = 0
+		m.items, err = m.store.GetPendingItems()
+		if err != nil {
+			log.Fatalf("Could not get items: %v", err)
+		}
+
+		m.viewType = listView
+	}
+	return m
+}
+
+// sets the viewport width and height
+// when the terminal resizes
+func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
+	m.viewport.SetWidth(msg.Width)
+	m.viewport.SetHeight(msg.Height - 8)
+	return m
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Used for batching
 	var (
@@ -81,186 +277,29 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		key := msg.String()
 		switch m.viewType {
+
 		case listView:
-			m.viewport, cmd = m.viewport.Update(msg)
-			cmds = append(cmds, cmd)
-			switch key {
-			case "tab":
-				m.listIndex = 0
-				switch m.listMode {
-				case 0:
-					m.listMode = 1
+			m = handleListView(
+				m,
+				cmds,
+				cmd,
+				key,
+				msg,
+			)
 
-					var err error
-					m.items, err = m.store.GetDoneItems()
-					if err != nil {
-						log.Fatalf("Could not get done items: %v", err)
-					}
-
-				case 1:
-					m.listMode = 2
-
-					var err error
-					m.items, err = m.store.GetItems()
-					if err != nil {
-						log.Fatalf("Could not get done items: %v", err)
-					}
-
-				case 2:
-					m.listMode = 0
-
-					var err error
-					m.items, err = m.store.GetPendingItems()
-					if err != nil {
-						log.Fatalf("Could not get done items: %v", err)
-					}
-
-				}
-			case "q":
-				return m, tea.Quit
-
-			case "a":
-				m.textinput.SetValue("")
-				m.textinput.Focus()
-				m.currentItem = Item{}
-				m.viewType = titleView
-
-			case "down", "j":
-				if m.listIndex < len(m.items)-1 {
-					m.listIndex++
-				} else {
-					m.listIndex = 0
-				}
-
-			case "up", "k":
-				if m.listIndex > 0 {
-					m.listIndex--
-				} else {
-					m.listIndex = len(m.items) - 1
-				}
-
-			case "d":
-				m.currentItem = m.items[m.listIndex]
-
-				if !m.currentItem.Done {
-					var err error
-					if err = m.store.MarkDone(m.currentItem); err != nil {
-						log.Fatalf("Could not mark the item as done %v", err)
-					}
-
-					m.listIndex = 0
-
-					if m.listMode == 0 {
-						m.items, err = m.store.GetPendingItems()
-					} else if m.listMode == 1 {
-						m.items, err = m.store.GetDoneItems()
-					} else {
-						m.items, err = m.store.GetItems()
-					}
-					if err != nil {
-						log.Fatalf("Could not fetch items: %v", err)
-					}
-				}
-
-			case "p":
-				m.currentItem = m.items[m.listIndex]
-
-				if m.currentItem.Done {
-					var err error
-					if err = m.store.MarkPending(m.currentItem); err != nil {
-						log.Fatalf("Could not mark the item as done %v", err)
-					}
-
-					m.listIndex = 0
-
-					if m.listMode == 0 {
-						m.items, err = m.store.GetPendingItems()
-					} else if m.listMode == 1 {
-						m.items, err = m.store.GetDoneItems()
-					} else {
-						m.items, err = m.store.GetItems()
-					}
-					if err != nil {
-						log.Fatalf("Could not fetch items: %v", err)
-					}
-				}
-
-
-			case "i":
-				m.currentItem = m.items[m.listIndex]
-				m.viewType = bodyView
-				m.textarea.SetValue(m.currentItem.Body)
-				m.textarea.Focus()
-				m.textarea.CursorEnd()
-			}
 		case titleView:
-			switch key {
-			case "enter", "ctrl+s":
-				title := m.textinput.Value()
-				if title != "" {
-					m.currentItem.Title = title
-					m.viewType = bodyView
-					m.textarea.SetValue("")
-					m.textarea.Focus()
-					m.textarea.CursorEnd()
-				}
+			m = handleTitleView(m, key)
 
-			case "q":
-				m.viewType = listView
-
-			case "ctrl+w":
-				return m, tea.Quit
-			}
 		case bodyView:
-			switch key {
-			case "enter":
-				body := m.textarea.Value()
-				if body != "" {
-					m.currentItem.Body = body
-					m.viewType = priorityView
-					m.textinput.SetValue("")
-					m.textinput.Focus()
-					// Empty for Priority
-					if m.currentItem.Priority != 0 {
-						m.textinput.SetValue(strconv.FormatInt(m.currentItem.Priority, 10))
-					} else {
-						m.textinput.SetValue("")
-					}
-				}
-			case "esc":
-				m.viewType = listView
-			}
+			m = handleBodyView(m, key)
+
 		case priorityView:
-			switch key {
-			case "enter", "ctrl+s":
-				priority := m.textinput.Value()
-				cint, err := strconv.ParseInt(priority, 10, 64)
-				if err != nil {
-					fmt.Println("Unable to store priority: ", err)
-					os.Exit(1)
-				}
+			m = handlePriorityView(m, key)
 
-				m.currentItem.Priority = cint
-
-				var errr error
-				if errr = m.store.CreateItem(m.currentItem); errr != nil {
-					log.Fatalf("Could not create item: %v", errr)
-				}
-
-				m.listIndex = 0
-				m.listMode = 0
-				m.items, err = m.store.GetPendingItems()
-				if err != nil {
-					log.Fatalf("Could not get items: %v", err)
-				}
-
-				m.viewType = listView
-			}
 		}
 
 		case tea.WindowSizeMsg:
-			m.viewport.SetWidth(msg.Width)
-			m.viewport.SetHeight(msg.Height - 8)
+			m = handleWindowResize(m, msg)
 	}
 
 	return m, tea.Batch(cmds...)

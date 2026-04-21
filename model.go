@@ -64,15 +64,26 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+func handleListMode(m model) model {
+	var err error
+	switch m.listMode {
+	case 0:
+		m.items, err = m.store.GetPendingItems()
+	case 1:
+		m.items, err = m.store.GetDoneItems()
+	case 2:
+		m.items, err = m.store.GetItems()
+	}
+	if err != nil {
+		log.Fatalf("Could not fetch items: %v", err)
+	}
+	return m
+}
+
 func handleListView(
 	m model,
-	cmds []tea.Cmd,
-	cmd tea.Cmd,
 	key string,
-	msg tea.KeyPressMsg,
 ) model {
-	m.viewport, cmd = m.viewport.Update(msg)
-	cmds = append(cmds, cmd)
 	switch key {
 	case "tab":
 		m.listIndex = 0
@@ -136,17 +147,8 @@ func handleListView(
 			}
 
 			m.listIndex = 0
+			m = handleListMode(m)
 
-			if m.listMode == 0 {
-				m.items, err = m.store.GetPendingItems()
-			} else if m.listMode == 1 {
-				m.items, err = m.store.GetDoneItems()
-			} else {
-				m.items, err = m.store.GetItems()
-			}
-			if err != nil {
-				log.Fatalf("Could not fetch items: %v", err)
-			}
 		}
 
 	case "p":
@@ -159,17 +161,8 @@ func handleListView(
 			}
 
 			m.listIndex = 0
-
-			if m.listMode == 0 {
-				m.items, err = m.store.GetPendingItems()
-			} else if m.listMode == 1 {
-				m.items, err = m.store.GetDoneItems()
-			} else {
-				m.items, err = m.store.GetItems()
-			}
-			if err != nil {
-				log.Fatalf("Could not fetch items: %v", err)
-			}
+			
+			m = handleListMode(m)
 		}
 
 
@@ -256,7 +249,7 @@ func handlePriorityView(m model, key string) model {
 // when the terminal resizes
 func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
 	m.viewport.SetWidth(msg.Width)
-	m.viewport.SetHeight(msg.Height - 8)
+	m.viewport.SetHeight(msg.Height)
 	return m
 }
 
@@ -273,18 +266,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.textinput, cmd = m.textinput.Update(msg)
 	cmds = append(cmds, cmd)
 
+	m.viewport, cmd = m.viewport.Update(msg)
+	cmds = append(cmds, cmd)
+
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		key := msg.String()
+
 		switch m.viewType {
 
 		case listView:
 			m = handleListView(
 				m,
-				cmds,
-				cmd,
 				key,
-				msg,
 			)
 
 		case titleView:

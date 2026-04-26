@@ -253,6 +253,16 @@ func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
 	return m
 }
 
+func mustExit(m model, key string) bool {
+	mustExit := false
+	switch key {
+		case "ctrl+w":
+			mustExit = true
+	}
+	return mustExit
+}
+
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Used for batching
 	var (
@@ -272,6 +282,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		key := msg.String()
+
+		mustExit := mustExit(m, key)
+		if mustExit {
+			return m, tea.Quit
+		}
 
 		switch m.viewType {
 

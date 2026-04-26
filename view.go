@@ -1,9 +1,9 @@
 package main
 
 import (
+	"os"
 	"strconv"
 	"strings"
-	"os"
 
 	"golang.org/x/term"
 
@@ -118,6 +118,20 @@ func (m model) View() tea.View {
 
 	// Viewport 
 	m.viewport.SetContent(viewPortContent)
+
+	// Handle viewport scrolling
+	if m.viewType == listView {
+		const lineHeight = 2
+		currItemOffset := m.listIndex * lineHeight
+		viewPortHeight := m.viewport.Height()
+
+		if currItemOffset < m.viewport.YOffset() {
+			m.viewport.SetYOffset(currItemOffset)
+		} else if currItemOffset + lineHeight > m.viewport.YOffset() + viewPortHeight {
+			m.viewport.SetYOffset(currItemOffset + lineHeight - viewPortHeight)
+		}
+	}
+
 	s += m.viewport.View()
 
 

@@ -74,6 +74,9 @@ func (m model) View() tea.View {
 	// Current View Type
 	s += renderListMode(m.listMode, termWidth)
 
+	// Help tool
+	s += renderHelpTool(m, termWidth)
+
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
 		s += m.textinput.View() + newline
@@ -117,8 +120,6 @@ func (m model) View() tea.View {
 	m.viewport.SetContent(viewPortContent)
 	s += m.viewport.View()
 
-	// Help tool
-	s += renderHelpTool(m, termWidth)
 
 	v := tea.NewView(s)
 	v.AltScreen = true

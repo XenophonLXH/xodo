@@ -253,7 +253,7 @@ func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
 	return m
 }
 
-func mustExit(m model, key string) bool {
+func mustExit(key string) bool {
 	mustExit := false
 	switch key {
 		case "ctrl+w":
@@ -283,7 +283,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		key := msg.String()
 
-		mustExit := mustExit(m, key)
+		mustExit := mustExit(key)
 		if mustExit {
 			return m, tea.Quit
 		}

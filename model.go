@@ -194,7 +194,7 @@ func handleTitleView(m model, key string) model {
 			m.textarea.CursorEnd()
 		}
 
-	case "q":
+	case "q", "esc":
 		m.viewType = listView
 	}
 	return m
@@ -259,11 +259,15 @@ func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
 	return m
 }
 
-func mustExit(key string) bool {
+func mustExit(key string, viewType uint) bool {
 	mustExit := false
 	switch key {
 		case "ctrl+w":
 			mustExit = true
+		case "q":
+			if viewType == listView {
+				mustExit = true
+			}
 	}
 	return mustExit
 }
@@ -289,7 +293,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		key := msg.String()
 
-		mustExit := mustExit(key)
+		mustExit := mustExit(key, m.viewType)
 		if mustExit {
 			return m, tea.Quit
 		}

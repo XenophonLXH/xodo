@@ -247,6 +247,9 @@ func handlePriorityView(m model, key string) model {
 		}
 
 		m.viewType = listView
+
+	case "esc":
+		m.viewType = bodyView
 	}
 	return m
 }

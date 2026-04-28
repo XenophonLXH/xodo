@@ -89,7 +89,6 @@ func (m model) View() tea.View {
 		s += controlTool.Render("enter - save ; esc - back")
 	}
 
-	s += newline
 	var viewPortContent string
 	if m.viewType == listView {
 		for i, n := range m.items {

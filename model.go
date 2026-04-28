@@ -249,7 +249,7 @@ func handlePriorityView(m model, key string) model {
 // when the terminal resizes
 func handleWindowResize(m model, msg tea.WindowSizeMsg) model {
 	m.viewport.SetWidth(msg.Width)
-	m.viewport.SetHeight(msg.Height - 10)
+	m.viewport.SetHeight(msg.Height - 8)
 	return m
 }
 

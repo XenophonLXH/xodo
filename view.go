@@ -14,12 +14,10 @@ import (
 var (
 	titleFG = lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#F5F2F2")).
-		Background(lipgloss.Color("#2B2A2A"))
+		Foreground(lipgloss.Color("#F5F2F2"))
 
 	titleBG = lipgloss.NewStyle().
 		Bold(true).
-		Background(lipgloss.Color("#2B2A2A")).
 		Foreground(lipgloss.Color("#FEB05D")).
 		BorderStyle(lipgloss.RoundedBorder()).
 		Align(lipgloss.Center)
@@ -27,12 +25,10 @@ var (
 	listNameFG = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("#FEB05D")).
-			Padding(0, 1).
-			Background(lipgloss.Color("#2B2A2A"))
+			Padding(0, 1)
 
 	controlTool = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
-			Background(lipgloss.Color("#2B2A2A")).
 			Margin(0).
 			Align(lipgloss.Center)
 
@@ -56,6 +52,7 @@ var (
 			Background(lipgloss.Color("#5A7ACD")).
 			Foreground(lipgloss.White).
 			Padding(0, 1).
+			Margin(0, 1).
 			Align(lipgloss.Center)
 )
 
@@ -73,9 +70,6 @@ func (m model) View() tea.View {
 
 	// Current View Type
 	s += renderListMode(m.listMode, termWidth)
-
-	// Help tool
-	s += renderHelpTool(m, termWidth)
 
 	if m.viewType == titleView {
 		s += listTitle.Render("Title: ") + newline
@@ -134,6 +128,9 @@ func (m model) View() tea.View {
 
 	s += m.viewport.View()
 
+	// Help tool
+	s += newline
+	s += renderHelpTool(m, termWidth)
 
 	v := tea.NewView(s)
 	v.AltScreen = true

@@ -35,8 +35,10 @@ var (
 	listPointer = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#5A7ACD")).
 			Padding(0, 1)
-	listTitle = lipgloss.NewStyle().
+	listTitlePending = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FEB05D"))
+	listTitleDone = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#AAA999"))
 	listDesc = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#F5F2F2"))
 	listPrio = lipgloss.NewStyle().
@@ -72,7 +74,7 @@ func (m model) View() tea.View {
 	s += renderListMode(m.listMode, termWidth)
 
 	if m.viewType == titleView {
-		s += listTitle.Render("Title: ") + newline
+		s += listTitlePending.Render("Title: ") + newline
 		s += m.textinput.View() + newline
 		s += controlTool.Render("enter - save ; esc - discard ; ctrl + w - quit")
 	}
@@ -105,7 +107,14 @@ func (m model) View() tea.View {
 			priority := n.Priority
 			viewPortContent += listPrio.Render(
 				"("+strconv.FormatInt(priority, 10)+") ",
-			) + listPointer.Render(prefix) + listTitle.Render("["+n.Title+"]: ") + listDesc.Render(shortbody) + newline
+			) + listPointer.Render(prefix)
+
+			if n.Done {
+				viewPortContent += listTitleDone.Render("["+n.Title+"]: ") 
+			} else {
+				viewPortContent += listTitlePending.Render("["+n.Title+"]: ") 
+			}
+			viewPortContent += listDesc.Render(shortbody) + newline
 		}
 	}
 

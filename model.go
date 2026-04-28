@@ -85,6 +85,12 @@ func handleListView(
 	key string,
 ) model {
 	switch key {
+	case "g":
+		m.listIndex = 0
+
+	case "G":
+		m.listIndex = len(m.items) - 1
+
 	case "tab":
 		m.listIndex = 0
 		switch m.listMode {

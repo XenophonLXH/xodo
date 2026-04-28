@@ -161,17 +161,17 @@ func renderListMode(lm listMode, t int) (s string) {
 func renderHelpTool(m model, t int) (s string) {
 	controlTool = controlTool.Width(t)
 	if len(m.items) == 0 && (m.listMode == 0 || m.listMode == 2) {
-		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done ; g - top ; G - bottom")
 	}
 
 	if len(m.items) == 0 && m.listMode == 1 {
-		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending ; g - top ; G - bottom")
 	}
 
 	if m.items[m.listIndex].Done {
-		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending")
+		return controlTool.Render("a - add ; q - quit ; i - edit ; p - pending ; g - top ; G - bottom")
 	} else {
-		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done")
+		return controlTool.Render("a - add ; q - quit ; i - edit ; d - done ; g - top ; G - bottom")
 	}
 
 }

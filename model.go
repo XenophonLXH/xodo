@@ -194,7 +194,7 @@ func handleTitleView(m model, key string) model {
 			m.textarea.CursorEnd()
 		}
 
-	case "q", "esc":
+	case "esc":
 		m.viewType = listView
 	}
 	return m
